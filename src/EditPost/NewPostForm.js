@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 import { createPost } from "../features/postsSlice";
 function NewPostForm() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -13,6 +15,7 @@ function NewPostForm() {
       body: formData.get("body"),
     };
     dispatch(createPost(postData));
+    navigate(-2);
   }
 
   return (

@@ -6,10 +6,9 @@ const initialState = {
   posts: [],
   error: "",
 };
-
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", () => {
   return axios
-    .get("https://jsonplaceholder.typicode.com/posts")
+    .get(`https://jsonplaceholder.typicode.com/posts`)
     .then((response) => response.data.map((posts) => posts));
 });
 
@@ -44,21 +43,18 @@ export const editPost = createAsyncThunk(
 //Delete Post:
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
-  async (postId, thunkAPI) => {
-    try {
-      const response = await axios.delete(
-        `https://jsonplaceholder.typicode.com/posts/${postId}`
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
-    }
+  async (postId) => {
+    const response = await axios.delete(
+      `https://jsonplaceholder.typicode.com/posts/${postId}`
+    );
+    return postId;
   }
 );
 
 const postsSlice = createSlice({
   name: "posts",
   initialState,
+
   extraReducers: (builder) => {
     // Fetch Posts Cases:
     builder.addCase(fetchPosts.pending, (state) => {
@@ -80,7 +76,7 @@ const postsSlice = createSlice({
     });
     builder.addCase(createPost.fulfilled, (state, action) => {
       state.loading = false;
-      state.posts = state.posts.push(action.payload);
+      state.posts.push(action.payload);
       state.error = "";
     });
     builder.addCase(createPost.rejected, (state, action) => {
@@ -88,20 +84,16 @@ const postsSlice = createSlice({
       state.posts = [];
       state.error = action.error.message;
     });
-    //Edit Old Page:
+    //Edit Old Post:
     builder.addCase(editPost.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(editPost.fulfilled, (state, action) => {
-      const editedPost = action.payload;
-      const existingPost = state.posts.find(
-        (post) => post.id === editedPost.id
-      );
-      if (existingPost) {
-        Object.assign(existingPost, editedPost);
+      const updatedPost = action.payload;
+      const index = state.posts.findIndex((post) => post.id === updatedPost.id);
+      if (index !== -1) {
+        state[index + 1] = updatedPost;
       }
-      state.error = "";
-      state.loading = false;
     });
     builder.addCase(editPost.rejected, (state, action) => {
       state.loading = false;
@@ -119,7 +111,6 @@ const postsSlice = createSlice({
     });
     builder.addCase(deletePost.rejected, (state, action) => {
       state.loading = false;
-      // state.posts = [];
       state.error = action.payload;
     });
   },

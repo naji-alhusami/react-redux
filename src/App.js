@@ -3,28 +3,27 @@ import { useDispatch } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 
 import AllPosts from "./posts/AllPosts";
-import Navbar from "./navbar/Navbar";
+import AllUsers from "./users/AllUsers";
 import EditPost from "./EditPost/EditPost";
-import { fetchPosts } from "./features/postsSlice";
+import { fetchUsers } from "./features/usersSlice";
 import NewPostForm from "./EditPost/NewPostForm";
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const loadPosts = async () => {
-      await dispatch(fetchPosts());
+    const loadUsers = async () => {
+      await dispatch(fetchUsers());
     };
-    loadPosts();
+    loadUsers();
   }, []);
 
   return (
     <>
-      <Navbar />
       <Routes>
-        <Route path="/EditPost" element={<EditPost />} />
-        <Route path="?userId=:userId" element={<AllPosts />} />
-        <Route path="/" element={<AllPosts />} />
+        <Route path="/EditPost/:postId" element={<EditPost />} />
+        <Route path="/" element={<AllUsers />} />
+        <Route exact path="posts" element={<AllPosts />} />
         <Route path="/NewPostForm" element={<NewPostForm />} />
       </Routes>
     </>

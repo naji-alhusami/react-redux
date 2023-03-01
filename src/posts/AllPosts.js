@@ -1,41 +1,53 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PostCard from "./PostCard";
-import { useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPosts } from "../features/postsSlice";
 import { useSearchParams } from "react-router-dom";
+import Navbar from "../navbar/Navbar";
 
 function AllPosts() {
+  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      await dispatch(fetchPosts());
+    };
+    loadPosts();
+  }, []);
+
   const posts = useSelector((state) => state.posts.posts);
 
-  // Get the userId URL parameter from the location search string
   const userIdParam = searchParams.get("userId");
 
   const filteredPosts = posts.filter((post) => {
-    // console.log(post);
     if (userIdParam) {
       return post.userId === parseInt(userIdParam);
     } else {
-      return true; // return all posts if no userIdParam is present
+      return true;
     }
   });
 
+
   return (
-    <div className="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-      {filteredPosts.map((post) => {
-        // if (post.userId) {
-          // console.log(post.userId, post.id);
+    <>
+      <Navbar
+        postsNumber={filteredPosts.length}
+      />
+      <div className="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5">
+        {filteredPosts.map((post) => {
           return (
-              <PostCard
-                key={post.id}
-                id={post.id}
-                userId={post.userId}
-                header={post.title}
-                text={post.body}
-              />
+            <PostCard
+              key={post.id}
+              id={post.id}
+              userId={post.userId}
+              header={post.title}
+              text={post.body}
+            />
           );
-        // }
-      })}
-    </div>
+        })}
+      </div>
+    </>
   );
 }
 export default AllPosts;
